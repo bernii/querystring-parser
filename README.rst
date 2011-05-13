@@ -8,18 +8,18 @@ When to use it?
 ================
 
 Lets say you have some textfields on your webpage that you wish to get as dictionary on the backend. The querystring could look like:
- 
-*section[1]['words'][2]=a&section[0]['words'][2]=a&section[0]['words'][2]=b*
+:: 
+  section[1]['words'][2]=a&section[0]['words'][2]=a&section[0]['words'][2]=b
 
 Standard django REQUEST (QueryDict) variable will contain:
-
-*<QueryDict: {u"section[1]['words'][2]": [u'a'], u"section[0]['words'][2]": [u'a', u'b']}>*
+::
+  <QueryDict: {u"section[1]['words'][2]": [u'a'], u"section[0]['words'][2]": [u'a', u'b']}>
 
 As you see it doesn't really convert it to dict. Instead of elegant dictionary you have a string called "section[1]['words'][2]" and "section[0]['words'][2]" and if you want to do something with it, you'll need to parse it (sic!).
 
 When using querystring-parser the output will look like:
-
-*{u'section': {0: {u'words': {2: [u'a', u'b']}}, 1: {u'words': {2: u'a'}}}}*
+::
+  {u'section': {0: {u'words': {2: [u'a', u'b']}}, 1: {u'words': {2: u'a'}}}}
 
 Tadam! Everything is much simpler and more beautiful now :)
 
