@@ -31,15 +31,15 @@ Test made using timeit show that in most cases speed of created library is simil
 ::
 
   Test string nr   querystring-parser    Django QueryDict
-  0               0.357883930206         0.308471918106
+  0               0.47441983223          0.347613096237
   Test string nr   querystring-parser    Django QueryDict
-  1*              1.39680719376          0.900585889816
+  1               1.79631304741          1.02672982216
   Test string nr   querystring-parser    Django QueryDict
-  2               0.0441470146179        0.11444401741
+  2               0.0738389492035        0.124305009842
   Test string nr   querystring-parser    Django QueryDict
-  3               0.00601196289062       0.0453128814697
+  3               0.0112400054932        0.0459840297699
   Test string nr   querystring-parser    Django QueryDict
-  4               0.000290870666504      0.0167441368103
+  4               0.000308036804199      0.0171360969543
 
 1* Is most interesting as is contains nested dictionaries in query string.
 
@@ -49,5 +49,5 @@ How to use:
 Just add it to your Django project and start using it.  
 ::
   from querystring_parser import parser
-  post_dict = parser.parse(urllib.unquote_plus(request.POST.urlencode()))
+  post_dict = parser.parse(request.POST.urlencode())
 

@@ -5,7 +5,7 @@ Created on 2011-05-13
 @author: berni
 '''
 
-import parser
+from parser import parse, MalformedQueryStringError
 import unittest
 
 #queryString ="packetname=fd&section[0]['words'][2]=&section[0]['words'][2]=&language=1&packetdesc=sdfsd&newlanguage=proponowany+jezyk..&newsectionname=&section[0]['words'][1]=&section[0]['words'][1]=&packettype=radio&section[0]['words'][0]=sdfsd&section[0]['words'][0]=ds"
@@ -13,7 +13,10 @@ import unittest
 
 
 class KnownValues(unittest.TestCase):
-    knownValues = (
+    '''
+    Test output for known query string values
+    '''
+    knownValuesClean = (
                     (
                      "packetname=fd&section[0]['words'][2]=&section[0]['words'][2]=&language=1&packetdesc=sdfsd&newlanguage=proponowany jezyk..&newsectionname=&section[0]['words'][1]=&section[0]['words'][1]=&packettype=radio&section[0]['words'][0]=sdfsd&section[0]['words'][0]=ds",
                      {"packetname": "fd", "section": {0: {"words": {0: ["sdfsd", "ds"], 1: ["", ""], 2: ["", ""]}}}, "language": 1, "packetdesc": "sdfsd", "newlanguage": "proponowany jezyk..", "newsectionname": "", "packettype": "radio"}
@@ -27,7 +30,7 @@ class KnownValues(unittest.TestCase):
                                       "name": "sekcja siatkarska1"},
                                   12: {"words": {-1: ["", ""], -2: ["", ""], 34: ["wlos", "a hair"]},
                                       "name": "sekcja siatkarska2"}},
-                       "language": 1, "newlanguage": "proponowany jezyk..", "newsectionname": "", "packettype": 1,
+                       "language": 1, "newlanguage": "proponowany jezyk..", "packettype": 1,
                        "tags": "dance, angielski, taniec", "newsectionname": "",
                        "sectionnew": ["sekcja siatkarska", "sekcja siatkarska1", "sekcja siatkarska2"]}
                       ),
@@ -39,14 +42,49 @@ class KnownValues(unittest.TestCase):
                        ("", {}),
                        )
 
-    def testParseKnownValues(self):
+    knownValues = (
+                    (
+                     "packetname=f%26d&section%5B0%5D%5B%27words%27%5D%5B2%5D=&section%5B0%5D%5B%27words%27%5D%5B2%5D=&language=1&packetdesc=sdfsd&newlanguage=proponowany+jezyk..&newsectionname=&section%5B0%5D%5B%27words%27%5D%5B1%5D=&section%5B0%5D%5B%27words%27%5D%5B1%5D=&packettype=radio&section%5B0%5D%5B%27words%27%5D%5B0%5D=sdfsd&section%5B0%5D%5B%27words%27%5D%5B0%5D=ds",
+                     {"packetname": "f&d", "section": {0: {"words": {0: ["sdfsd", "ds"], 1: ["", ""], 2: ["", ""]}}}, "language": 1, "packetdesc": "sdfsd", "newlanguage": "proponowany jezyk..", "newsectionname": "", "packettype": "radio"}
+                     ),
+                     (
+                      "language=1&newlanguage=proponowany+jezyk..&newsectionname=&packetdesc=Zajebiste+slowka+na+jutrzejszy+sprawdzian+z+chemii&packetid=4&packetname=Chemia+spr&packettype=1&section%5B10%5D%5B%27name%27%5D=sekcja+siatkarska&section%5B10%5D%5B%27words%27%5D%5B-1%5D=&section%5B10%5D%5B%27words%27%5D%5B-1%5D=&section%5B10%5D%5B%27words%27%5D%5B-2%5D=&section%5B10%5D%5B%27words%27%5D%5B-2%5D=&section%5B10%5D%5B%27words%27%5D%5B30%5D=noga&section%5B10%5D%5B%27words%27%5D%5B30%5D=leg&section%5B11%5D%5B%27del_words%27%5D%5B32%5D=kciuk&section%5B11%5D%5B%27del_words%27%5D%5B32%5D=thimb&section%5B11%5D%5B%27del_words%27%5D%5B33%5D=oko&section%5B11%5D%5B%27del_words%27%5D%5B33%5D=an+eye&section%5B11%5D%5B%27name%27%5D=sekcja+siatkarska1&section%5B11%5D%5B%27words%27%5D%5B-1%5D=&section%5B11%5D%5B%27words%27%5D%5B-1%5D=&section%5B11%5D%5B%27words%27%5D%5B-2%5D=&section%5B11%5D%5B%27words%27%5D%5B-2%5D=&section%5B11%5D%5B%27words%27%5D%5B31%5D=renca&section%5B11%5D%5B%27words%27%5D%5B31%5D=rukka&section%5B12%5D%5B%27name%27%5D=sekcja+siatkarska2&section%5B12%5D%5B%27words%27%5D%5B-1%5D=&section%5B12%5D%5B%27words%27%5D%5B-1%5D=&section%5B12%5D%5B%27words%27%5D%5B-2%5D=&section%5B12%5D%5B%27words%27%5D%5B-2%5D=&section%5B12%5D%5B%27words%27%5D%5B34%5D=wlos&section%5B12%5D%5B%27words%27%5D%5B34%5D=a+hair&sectionnew=sekcja%3Dsiatkarska&sectionnew=sekcja+siatkarska1&sectionnew=sekcja+siatkarska2&tags=dance%2C+angielski%2C+taniec",
+                      {"packetdesc": "Zajebiste slowka na jutrzejszy sprawdzian z chemii", "packetid": 4, "packetname": "Chemia spr",
+                       "section": {10: {"words": {-1: ["", ""], -2: ["", ""], 30: ["noga", "leg"]}, "name": "sekcja siatkarska"},
+                                  11: {"words": {-1: ["", ""], -2: ["", ""], 31: ["renca", "rukka"]},
+                                      "del_words": {32: ["kciuk", "thimb"], 33: ["oko", "an eye"]},
+                                      "name": "sekcja siatkarska1"},
+                                  12: {"words": {-1: ["", ""], -2: ["", ""], 34: ["wlos", "a hair"]},
+                                      "name": "sekcja siatkarska2"}},
+                       "language": 1, "newlanguage": "proponowany jezyk..", "packettype": 1,
+                       "tags": "dance, angielski, taniec", "newsectionname": "",
+                       "sectionnew": ["sekcja=siatkarska", "sekcja siatkarska1", "sekcja siatkarska2"]}
+                      ),
+                      (
+                       "f=a+hair&sectionnew%5B%5D=sekcja+siatkarska&sectionnew%5B%5D=sekcja+siatkarska1&sectionnew%5B%5D=sekcja+siatkarska2",
+                       {"f": "a hair", "sectionnew": {"": ["sekcja siatkarska", "sekcja siatkarska1", "sekcja siatkarska2"]}}
+                       ),
+                       ("f=a", {"f": "a"}),
+                       ("", {}),
+                       )
+
+    def test_parse_known_values_clean(self):
         """parse should give known result with known input"""
-        for queryString, dict in self.knownValues:
-            result = parser.parse(queryString)
-            self.assertEqual(dict, result)
+        for query_string, dic in self.knownValuesClean:
+            result = parse(query_string, False)
+            self.assertEqual(dic, result)
+
+    def test_parse_known_values(self):
+        """parse should give known result with known input (quoted)"""
+        for query_string, dic in self.knownValues:
+            result = parse(query_string)
+            self.assertEqual(dic, result)
 
 
-class FromRomanBadInput(unittest.TestCase):
+class ParseBadInput(unittest.TestCase):
+    '''
+    Test for exceptions when bad input is provided
+    '''
     badQueryStrings = (
                         "f&a hair&sectionnew[]=sekcja siatkarska&sectionnew[]=sekcja siatkarska1&sectionnew[]=sekcja siatkarska2",
                         "f=a hair&sectionnew[=sekcja siatkarska&sectionnew[]=sekcja siatkarska1&sectionnew[]=sekcja siatkarska2",
@@ -55,10 +93,10 @@ class FromRomanBadInput(unittest.TestCase):
                         "packetname=fd&newsectionname=&",
                        )
 
-    def testBadInput(self):
+    def test_bad_input(self):
         """parse should fail with malformed querystring"""
-        for s in self.badQueryStrings:
-            self.assertRaises(parser.MalformedQueryStringError, parser.parse, s)
+        for qstr in self.badQueryStrings:
+            self.assertRaises(MalformedQueryStringError, parse, qstr, False)
 
 if __name__ == "__main__":
     unittest.main()

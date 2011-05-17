@@ -6,77 +6,96 @@ Created on 2011-05-12
 '''
 
 import re
-entryName = re.compile('^[\w]+') # variable name
-hasVariableName = re.compile('^[\w]+\[') # variable name before index
-moreThanOneIndex = re.compile('\[.*\]\[.*\]') # does have more than one index (nested table)
-getKey = re.compile("\['?([-\w]*)'?\]") # get key
-isNumber = re.compile("^[-]?[\d]+$") # [-\d]+ # is it number
+import urllib
+ENTRY_NAME = re.compile('^[\w]+') # variable name
+HAS_VARIABLE_NAME = re.compile('^[\w]+\[') # variable name before index
+MORE_THAN_ONE_INDEX = re.compile('\[.*\]\[.*\]') # does have more than one index (nested table)
+GET_KEY = re.compile("\['?([-\w]*)'?\]") # get key
+IS_NUMBER = re.compile("^[-]?[\d]+$") # [-\d]+ # is it number
 __DEBUG__ = False
 
 
 class MalformedQueryStringError(Exception):
+    '''
+    Query string is malformed, can't parse it :(
+    '''
     pass
 
 
-def parserHelper(key, val):
-    dict = {}
+def parser_helper(key, val):
+    '''
+    Helper for parser function
+    @param key:
+    @param val:
+    '''
+    pdict = {}
     if __DEBUG__:
         print "%s = %s" % (key, val)
-    if hasVariableName.match(key) is not None: # var['key'][3]
-        (start, end) = entryName.match(key).span()
+    if HAS_VARIABLE_NAME.match(key) is not None: # var['key'][3]
+        (start, end) = ENTRY_NAME.match(key).span()
         if __DEBUG__:
             print "1 s:%s e:%s -> %s" % (start, end, key[start:end])
-        dict[entryName.match(key).group()] = parserHelper(key[end:], val)
-    elif moreThanOneIndex.match(key) is not None: # ['key'][3]
-        (start, end) = getKey.match(key).span()
+        pdict[ENTRY_NAME.match(key).group()] = parser_helper(key[end:], val)
+    elif MORE_THAN_ONE_INDEX.match(key) is not None: # ['key'][3]
+        (start, end) = GET_KEY.match(key).span()
         if __DEBUG__:
             print "2 s:%s e:%s -> %s" % (start, end, key[start:end])
-        newkey = getKey.match(key).groups()[0]
-        if isNumber.match(newkey):
+        newkey = GET_KEY.match(key).groups()[0]
+        if IS_NUMBER.match(newkey):
             newkey = eval(newkey)
-        dict[newkey] = parserHelper(key[end:], val)
+        pdict[newkey] = parser_helper(key[end:], val)
     elif key.find("[") != -1: # ['key']
-        v_key = getKey.match(key)
+        v_key = GET_KEY.match(key)
         if v_key is None:
             raise MalformedQueryStringError
         (start, end) = v_key.span()
         if __DEBUG__:
             print "4 s:%s e:%s -> %s" % (start, end, key[start:end])
-        newkey = getKey.match(key).groups()[0]
+        newkey = GET_KEY.match(key).groups()[0]
         if __DEBUG__:
             print newkey + " is digit ? " + str(newkey.isdigit()) + " val: " + str(val)
-        if isNumber.match(newkey):
+        if IS_NUMBER.match(newkey):
             newkey = eval(newkey)
-        if isNumber.match(val):
+        if IS_NUMBER.match(val):
             val = eval(val)
-        dict[newkey] = val
+        pdict[newkey] = val
     else: # key = val
         newkey = key
-        if isNumber.match(newkey):
+        if IS_NUMBER.match(newkey):
             newkey = int(newkey)
-        if isNumber.match(val):
+        if IS_NUMBER.match(val):
             val = int(val)
-        dict[newkey] = val
-    return dict
+        pdict[newkey] = val
+    return pdict
 
 
-def parse(queryString):
+def parse(query_string, unquote=True):
+    '''
+    Main parse function
+    @param query_string:
+    @param unquote: unquote html query string ?
+    '''
     mydict = {}
-    list = []
+    plist = []
     if __DEBUG__:
-        print "Q: " + queryString
-    if queryString == "":
+        print "Q: " + query_string
+    if query_string == "":
         return mydict
-    for element in queryString.split("&"):
+    for element in query_string.split("&"):
         try:
-            (var, val) = element.split("=")
+            if unquote:
+                (var, val) = element.split("=")
+                var = urllib.unquote_plus(var)
+                val = urllib.unquote_plus(val)
+            else:
+                (var, val) = element.split("=")
         except ValueError:
             raise MalformedQueryStringError
-        list.append(parserHelper(var, val))
+        plist.append(parser_helper(var, val))
     if __DEBUG__:
         print "LIST BEFORE MERGE"
-        print list
-    for di in list:
+        print plist
+    for di in plist:
         if __DEBUG__:
             print "Di = " + str(di) + " Dict = " + str(mydict)
         (k, v) = di.popitem()
@@ -103,8 +122,8 @@ if __name__ == '__main__':
     import sys
     from django.core.management import setup_environ
     # Add project dir so Djnago project settings is in the scope
-    lib_path = os.path.abspath('..')
-    sys.path.append(lib_path)
+    LIB_PATH = os.path.abspath('..')
+    sys.path.append(LIB_PATH)
     import settings
     setup_environ(settings)
 
