@@ -27,19 +27,21 @@ Efficiency:
 ============
 
 Test made using timeit show that in most cases speed of created library is similar to standard Django QueryDict parsing speed. For query string containing multidimensional complicated arrays  querystring-parser is significantly slower. This is totally understandable as created library creates nested dictionaries in contrary to standard Django function which only tokenizes data. You can see results below.
+Edit: Actually parsing is done by urlparse.parse_qs so I've added it to tests.
 
 ::
 
-  Test string nr   querystring-parser    Django QueryDict
-  0               0.47441983223          0.347613096237
-  Test string nr   querystring-parser    Django QueryDict
-  1               1.79631304741          1.02672982216
-  Test string nr   querystring-parser    Django QueryDict
-  2               0.0738389492035        0.124305009842
-  Test string nr   querystring-parser    Django QueryDict
-  3               0.0112400054932        0.0459840297699
-  Test string nr   querystring-parser    Django QueryDict
-  4               0.000308036804199      0.0171360969543
+  Test string nr  querystring-parser     Django QueryDict       parse_qs
+  0               4.82506012917          3.55248403549          0.624882936478
+  Test string nr  querystring-parser     Django QueryDict       parse_qs
+  1               18.0065619946          10.122371912           2.11287093163
+  Test string nr  querystring-parser     Django QueryDict       parse_qs
+  2               0.728802204132         1.23571300507          0.293427944183
+  Test string nr  querystring-parser     Django QueryDict       parse_qs
+  3               0.11042714119          0.462118148804         0.0700409412384
+  Test string nr  querystring-parser     Django QueryDict       parse_qs
+  4               0.00325989723206       0.171162128448         0.0170328617096
+
 
 1* Is most interesting as is contains nested dictionaries in query string.
 
