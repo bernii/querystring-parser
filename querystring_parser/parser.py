@@ -12,7 +12,6 @@ HAS_VARIABLE_NAME = re.compile('^[\w]+\[') # variable name before index
 MORE_THAN_ONE_INDEX = re.compile('\[.*\]\[.*\]') # does have more than one index (nested table)
 GET_KEY = re.compile("\['?([-\w]*)'?\]") # get key
 IS_NUMBER = re.compile("^[-]?[\d]+$") # [-\d]+ # is it number
-__DEBUG__ = False
 
 
 class MalformedQueryStringError(Exception):
@@ -29,17 +28,11 @@ def parser_helper(key, val):
     @param val:
     '''
     pdict = {}
-    if __DEBUG__:
-        print "%s = %s" % (key, val)
     if HAS_VARIABLE_NAME.match(key) is not None: # var['key'][3]
         (start, end) = ENTRY_NAME.match(key).span()
-        if __DEBUG__:
-            print "1 s:%s e:%s -> %s" % (start, end, key[start:end])
         pdict[ENTRY_NAME.match(key).group()] = parser_helper(key[end:], val)
     elif MORE_THAN_ONE_INDEX.match(key) is not None: # ['key'][3]
         (start, end) = GET_KEY.match(key).span()
-        if __DEBUG__:
-            print "2 s:%s e:%s -> %s" % (start, end, key[start:end])
         newkey = GET_KEY.match(key).groups()[0]
         if IS_NUMBER.match(newkey):
             newkey = eval(newkey)
@@ -49,11 +42,7 @@ def parser_helper(key, val):
         if v_key is None:
             raise MalformedQueryStringError
         (start, end) = v_key.span()
-        if __DEBUG__:
-            print "4 s:%s e:%s -> %s" % (start, end, key[start:end])
         newkey = GET_KEY.match(key).groups()[0]
-        if __DEBUG__:
-            print newkey + " is digit ? " + str(newkey.isdigit()) + " val: " + str(val)
         if IS_NUMBER.match(newkey):
             newkey = eval(newkey)
         if IS_NUMBER.match(val):
@@ -77,8 +66,6 @@ def parse(query_string, unquote=True):
     '''
     mydict = {}
     plist = []
-    if __DEBUG__:
-        print "Q: " + query_string
     if query_string == "":
         return mydict
     for element in query_string.split("&"):
@@ -92,15 +79,8 @@ def parse(query_string, unquote=True):
         except ValueError:
             raise MalformedQueryStringError
         plist.append(parser_helper(var, val))
-    if __DEBUG__:
-        print "LIST BEFORE MERGE"
-        print plist
     for di in plist:
-        if __DEBUG__:
-            print "Di = " + str(di) + " Dict = " + str(mydict)
         (k, v) = di.popitem()
-        if __DEBUG__:
-            print "Connecting  %s + %s " % (str(k), str(v))
         tempdict = mydict
         while k in tempdict and type(v) is dict:
             tempdict = tempdict[k]
