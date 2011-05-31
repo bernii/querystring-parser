@@ -5,13 +5,60 @@ Created on 2011-05-12
 @author: berni
 '''
 
-import re
 import urllib
-ENTRY_NAME = re.compile('^[\w]+') # variable name
-HAS_VARIABLE_NAME = re.compile('^[\w]+\[') # variable name before index
-MORE_THAN_ONE_INDEX = re.compile('\[.*\]\[.*\]') # does have more than one index (nested table)
-GET_KEY = re.compile("\['?([-\w]*)'?\]") # get key
-IS_NUMBER = re.compile("^[-]?[\d]+$") # [-\d]+ # is it number
+
+
+def has_variable_name(s):
+    '''
+    Variable name before [
+    @param s:
+    '''
+    if s.find("[") > 0:
+        return True
+
+
+def more_than_one_index(s, brackets=2):
+    '''
+    Search for two sets of [] []
+    @param s: string to search
+    '''
+    start = 0
+    brackets_num = 0
+    while start != -1 and brackets_num < brackets:
+        start = s.find("[", start)
+        if start == -1:
+            break
+        start = s.find("]", start)
+        brackets_num += 1
+    if start != -1:
+        return True
+    return False
+
+
+def get_key(s):
+    '''
+    Get data between [ and ] remove ' if exist
+    @param s: string to process
+    '''
+    start = s.find("[")
+    end = s.find("]")
+    if start == -1 or end == -1:
+        return None
+    if s[start + 1] == "'":
+        start += 1
+    if s[end - 1] == "'":
+        end -= 1
+    return s[start + 1:end] # without brackets
+
+
+def is_number(s):
+    '''
+    Check if s is an int (for indexes in dict)
+    @param s: string to check
+    '''
+    if len(s) > 0 and s[0] in ('-', '+'):
+        return s[1:].isdigit()
+    return s.isdigit()
 
 
 class MalformedQueryStringError(Exception):
@@ -27,33 +74,23 @@ def parser_helper(key, val):
     @param key:
     @param val:
     '''
+    start_bracket = key.find("[")
+    end_bracket = key.find("]")
     pdict = {}
-    if HAS_VARIABLE_NAME.match(key) is not None: # var['key'][3]
-        (start, end) = ENTRY_NAME.match(key).span()
-        pdict[ENTRY_NAME.match(key).group()] = parser_helper(key[end:], val)
-    elif MORE_THAN_ONE_INDEX.match(key) is not None: # ['key'][3]
-        (start, end) = GET_KEY.match(key).span()
-        newkey = GET_KEY.match(key).groups()[0]
-        if IS_NUMBER.match(newkey):
-            newkey = eval(newkey)
-        pdict[newkey] = parser_helper(key[end:], val)
-    elif key.find("[") != -1: # ['key']
-        v_key = GET_KEY.match(key)
-        if v_key is None:
-            raise MalformedQueryStringError
-        (start, end) = v_key.span()
-        newkey = GET_KEY.match(key).groups()[0]
-        if IS_NUMBER.match(newkey):
-            newkey = eval(newkey)
-        if IS_NUMBER.match(val):
-            val = eval(val)
-        pdict[newkey] = val
-    else: # key = val
+    if has_variable_name(key): # var['key'][3]
+        pdict[key[:key.find("[")]] = parser_helper(key[start_bracket:], val)
+    elif more_than_one_index(key): # ['key'][3]
+        newkey = get_key(key)
+        newkey = int(newkey) if is_number(newkey) else newkey
+        pdict[newkey] = parser_helper(key[end_bracket + 1:], val)
+    else: # key = val or ['key']
         newkey = key
-        if IS_NUMBER.match(newkey):
-            newkey = int(newkey)
-        if IS_NUMBER.match(val):
-            val = int(val)
+        if start_bracket != -1: # ['key']
+            newkey = get_key(key)
+            if newkey is None:
+                raise MalformedQueryStringError
+        newkey = int(newkey) if is_number(newkey) else newkey
+        val = int(val) if is_number(val) else val
         pdict[newkey] = val
     return pdict
 

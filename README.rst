@@ -32,18 +32,18 @@ Edit: Actually parsing is done by urlparse.parse_qs so I've added it to tests.
 ::
 
   Test string nr  querystring-parser     Django QueryDict       parse_qs
-  0               4.82506012917          3.55248403549          0.624882936478
+  0               2.75077319145          3.44334220886          0.582501888275
   Test string nr  querystring-parser     Django QueryDict       parse_qs
-  1               18.0065619946          10.122371912           2.11287093163
+  1               10.1889920235          10.2983090878          2.08930182457
   Test string nr  querystring-parser     Django QueryDict       parse_qs
-  2               0.728802204132         1.23571300507          0.293427944183
+  2               0.613747119904         1.21649289131          0.283004999161
   Test string nr  querystring-parser     Django QueryDict       parse_qs
-  3               0.11042714119          0.462118148804         0.0700409412384
+  3               0.107316017151         0.459388017654         0.0687718391418
   Test string nr  querystring-parser     Django QueryDict       parse_qs
-  4               0.00325989723206       0.171162128448         0.0170328617096
+  4               0.00291299819946       0.169251918793         0.0170118808746
 
 
-1* Is most interesting as is contains nested dictionaries in query string.
+Test #1 Is most interesting as is contains nested dictionaries in query string.
 
 How to use:
 ============
