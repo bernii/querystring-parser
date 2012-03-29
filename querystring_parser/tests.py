@@ -3,9 +3,12 @@
 Created on 2011-05-13
 
 @author: berni
+
+Updated 2012-03-28 Tomasz 'Doppler' Najdek
 '''
 
 from parser import parse, MalformedQueryStringError
+from builder import build
 import unittest
 
 #queryString ="packetname=fd&section[0]['words'][2]=&section[0]['words'][2]=&language=1&packetdesc=sdfsd&newlanguage=proponowany+jezyk..&newsectionname=&section[0]['words'][1]=&section[0]['words'][1]=&packettype=radio&section[0]['words'][0]=sdfsd&section[0]['words'][0]=ds"
@@ -97,6 +100,30 @@ class ParseBadInput(unittest.TestCase):
         """parse should fail with malformed querystring"""
         for qstr in self.badQueryStrings:
             self.assertRaises(MalformedQueryStringError, parse, qstr, False)
+
+class BuildUrl(unittest.TestCase):
+  '''
+  Basic test to verify builder's functionality
+  '''
+  request_data = {
+    u"word": u"easy",
+    u"more_words": [u"medium", u"average"],
+    u"words_with_translation": {u"hard":u"trudny", u"tough":u"twardy"},
+    u"words_nested":{u"hard":[u"trudny", u"twardy"]}
+  }
+
+  known_result = 'words_with_translation[hard]=trudny&words_with_translation[tough]=twardy&words_nested[hard][0]=trudny&words_nested[hard][1]=twardy&word=easy&more_words[0]=medium&more_words[1]=average'
+
+  def test_build(self):
+    result = build(self.request_data)
+    self.assertEquals(result, self.known_result)
+
+  @unittest.skip("Handling of arrays in parser and builder is not unified yet. Skipping end to end test.")
+  def test_end_to_end(self):
+    self.maxDiff = None
+    querystring = build(self.request_data)
+    result = parse(querystring)
+    self.assertEquals(result, self.request_data)
 
 if __name__ == "__main__":
     unittest.main()
