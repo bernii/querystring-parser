@@ -3,6 +3,8 @@
 Created on 2012-03-28
 
 @author: Tomasz 'Doppler' Najdek
+
+Updated 2012-04-01 Bernard 'berni' Kobos
 '''
 
 import urllib
@@ -22,7 +24,7 @@ def build(item):
 		elif(isinstance(item, types.ListType)):
 			for (index, value) in enumerate(item):
 				if(base):
-					new_base = "%s[%s]" % (base, index)
+					new_base = "%s" % (base)
 					pairs += recursion(value, new_base)
 				else:
 					pairs += recursion(value)
