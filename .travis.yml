@@ -3,4 +3,4 @@ python:
   - 2.7
 install:
 script:
-  - python tests.py
+  - python querystring_parser/tests.py
