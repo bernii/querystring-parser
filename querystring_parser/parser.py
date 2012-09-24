@@ -48,7 +48,7 @@ def get_key(s):
         start += 1
     if s[end - 1] == "'":
         end -= 1
-    return s[start + 1:end] # without brackets
+    return s[start + 1:end]  # without brackets
 
 
 def is_number(s):

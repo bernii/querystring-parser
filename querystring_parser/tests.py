@@ -5,7 +5,7 @@ Created on 2011-05-13
 @author: berni
 
 Updated 2012-03-28 Tomasz 'Doppler' Najdek
-Updated 2012-04-01 Bernard 'berni' Kobos
+Updated 2012-09-24 Bernard 'berni' Kobos
 '''
 
 from parser import parse, MalformedQueryStringError
@@ -128,6 +128,16 @@ class BuildUrl(unittest.TestCase):
         querystring = build(self.request_data)
         result = parse(querystring)
         self.assertEquals(result, self.request_data)
+
+
+class BuilderAndParser(unittest.TestCase):
+    '''
+    Testing both builder and parser
+    '''
+    def test_end_to_end(self):
+        parsed = parse('a[]=1&a[]=2')
+        result = build(parsed)
+        self.assertEquals(result, "a[]=1&a[]=2")
 
 if __name__ == "__main__":
     unittest.main()
