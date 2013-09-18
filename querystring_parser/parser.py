@@ -109,7 +109,7 @@ def parser_helper(key, val):
         pdict[newkey] = val
     return pdict
 
-def parse(query_string, unquote=True, encoding=DEFAULT_ENCODING):
+def parse(query_string, unquote=True, normlized=False, encoding=DEFAULT_ENCODING):
     '''
     Main parse function
     @param query_string:
@@ -148,7 +148,25 @@ def parse(query_string, unquote=True, encoding=DEFAULT_ENCODING):
             tempdict[k] = [tempdict[k], v]
         else:
             tempdict[k] = v
+    if normlized==True: return _normalize(mydict)
     return mydict
+
+
+def _normalize(d):
+    newd = {}
+    for k, v in d.iteritems():
+        if type(v) is dict and type(v.keys()[0]) is int:
+            temp_new = []
+            for k1, v1 in v.items():
+                temp_new.append(_normalize(v1))
+            newd[k] = temp_new
+        elif type(v) is dict and v.keys()[0] == '':            
+            newd[k] = v.values()[0]
+        elif type(v) is dict:
+            newd[k] = _normalize(v)
+        else:
+            newd[k] = v        
+    return newd
 
 
 if __name__ == '__main__':
