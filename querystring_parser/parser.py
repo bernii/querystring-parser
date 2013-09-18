@@ -95,7 +95,7 @@ def parser_helper(key, val):
     return pdict
 
 
-def parse(query_string, unquote=True):
+def parse(query_string, unquote=True, normlized=False):
     '''
     Main parse function
     @param query_string:
@@ -128,7 +128,9 @@ def parse(query_string, unquote=True):
             tempdict[k] = [tempdict[k], v]
         else:
             tempdict[k] = v
-    return _normalize(mydict)
+            
+    if normlized==True: return _normalize(mydict)
+    return mydict
 
 
 def _normalize(d):
