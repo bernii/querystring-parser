@@ -55,3 +55,7 @@ Just add it to your Django project and start using it.
   from querystring_parser import parser
   post_dict = parser.parse(request.POST.urlencode())
 
+License:
+=========
+
+* MIT License
