@@ -68,21 +68,22 @@ class MalformedQueryStringError(Exception):
     pass
 
 
-def parser_helper(key, val):
+def parser_helper(key, val, use_strings_as_utf8_unicode=False):
     '''
     Helper for parser function
     @param key:
     @param val:
+    @param use_strings_as_utf8_unicode: 
     '''
     start_bracket = key.find("[")
     end_bracket = key.find("]")
     pdict = {}
     if has_variable_name(key):  # var['key'][3]
-        pdict[key[:key.find("[")]] = parser_helper(key[start_bracket:], val)
+        pdict[key[:key.find("[")]] = parser_helper(key[start_bracket:], val, use_strings_as_utf8_unicode)
     elif more_than_one_index(key):  # ['key'][3]
         newkey = get_key(key)
         newkey = int(newkey) if is_number(newkey) else newkey
-        pdict[newkey] = parser_helper(key[end_bracket + 1:], val)
+        pdict[newkey] = parser_helper(key[end_bracket + 1:], val, use_strings_as_utf8_unicode)
     else:  # key = val or ['key']
         newkey = key
         if start_bracket != -1:  # ['key']
@@ -90,16 +91,17 @@ def parser_helper(key, val):
             if newkey is None:
                 raise MalformedQueryStringError
         newkey = int(newkey) if is_number(newkey) else newkey
-        val = int(val) if is_number(val) else val
+        val = int(val) if is_number(val) else unicode(val, "utf-8") if use_strings_as_utf8_unicode else val
         pdict[newkey] = val
     return pdict
 
 
-def parse(query_string, unquote=True):
+def parse(query_string, unquote=True, use_unicode_utf8=False):
     '''
     Main parse function
     @param query_string:
     @param unquote: unquote html query string ?
+    @param use_unicode_utf8: Use utf8 unicode strings instead ASCII ones?
     '''
     mydict = {}
     plist = []
@@ -115,7 +117,7 @@ def parse(query_string, unquote=True):
                 (var, val) = element.split("=")
         except ValueError:
             raise MalformedQueryStringError
-        plist.append(parser_helper(var, val))
+        plist.append(parser_helper(var, val, use_unicode_utf8))
     for di in plist:
         (k, v) = di.popitem()
         tempdict = mydict
