@@ -73,6 +73,7 @@ def parser_helper(key, val, use_strings_as_utf8_unicode=False):
     Helper for parser function
     @param key:
     @param val:
+    @param use_strings_as_utf8_unicode: 
     '''
     start_bracket = key.find("[")
     end_bracket = key.find("]")
