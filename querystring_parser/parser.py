@@ -105,6 +105,8 @@ def parse(query_string, unquote=True):
     plist = []
     if query_string == "":
         return mydict
+    # encode and decode for multibyte string
+    query_string = query_string.encode('utf-8', 'replace')
     for element in query_string.split("&"):
         try:
             if unquote:
@@ -115,6 +117,9 @@ def parse(query_string, unquote=True):
                 (var, val) = element.split("=")
         except ValueError:
             raise MalformedQueryStringError
+        # encode and decode for multibyte string
+        var = unicode(var, 'utf-8', 'replace')
+        val = unicode(val, 'utf-8', 'repalce')
         plist.append(parser_helper(var, val))
     for di in plist:
         (k, v) = di.popitem()
