@@ -100,6 +100,7 @@ def parse(query_string, unquote=True, normalized=False):
     Main parse function
     @param query_string:
     @param unquote: unquote html query string ?
+    @param normalized: parse number key in dict to proper list ?
     '''
     mydict = {}
     plist = []
@@ -135,7 +136,20 @@ def parse(query_string, unquote=True, normalized=False):
 
 
 def _normalize(d):
+    '''
+    The above parse function generates output of list in dict form
+    i.e. {'abc' : {0: 'xyz', 1: 'pqr'}}. This function normalize it and turn
+    them into proper data type, i.e. {'abc': ['xyz', 'pqr']}
+
+    Note: if dict has element starts with 10, 11 etc.. this function won't fill
+    blanks.
+    for eg: {'abc': {10: 'xyz', 12: 'pqr'}} will convert to 
+    {'abc': ['xyz', 'pqr']}
+    '''
     newd = {}
+    if isinstance(d, dict) == False:
+        return d
+    # if dictionary. iterate over each element and append to newd
     for k, v in d.iteritems():
         if type(v) is dict and type(v.keys()[0]) is int:
             temp_new = []
