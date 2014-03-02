@@ -173,5 +173,20 @@ class BuilderAndParser(unittest.TestCase):
         result = build(parsed)
         self.assertEquals(result, "a[]=1&a[]=2")
 
+
+class NormalizedParse(unittest.TestCase):
+    '''
+    '''
+    knownValues = KnownValues.knownValues
+    knownValuesNormalized = KnownValues.knownValues
+    knownValuesNormalized['section'] = [{u'words': [[u'sdfsd', u'ds'],
+                                                    [u'', u''], [u'', u'']]}]
+
+    def test_parse_normalized(self):
+
+        for key, dic in KnownValues.knownValues.items():
+            result = parse(build(dic), normalized=True)
+            self.assertEqual(self.knownValuesNormalized[key], result)
+
 if __name__ == "__main__":
     unittest.main()
