@@ -73,11 +73,21 @@ class KnownValues(unittest.TestCase):
                        ({}),
                        )
 
+    knownValuesCleanWithUnicode = (
+                                   # f = some unicode
+                                   ({u"f": u"\u9017"}),
+                                 )
+
+    knownValuesWithUnicode = (
+                               # f = some unicode
+                               ({u"f": u"\u9017"}),
+                             )
+
     def test_parse_known_values_clean(self):
         """parse should give known result with known input"""
         self.maxDiff = None
         for dic in self.knownValuesClean:
-            result = parse(build(dic), True)
+            result = parse(build(dic), unquote=True)
             self.assertEqual(dic, result)
 
     def test_parse_known_values(self):
@@ -85,6 +95,20 @@ class KnownValues(unittest.TestCase):
         self.maxDiff = None
         for dic in self.knownValues:
             result = parse(build(dic))
+            self.assertEqual(dic, result)
+
+    def test_parse_known_values_clean_with_unicode(self):
+        """parse should give known result with known input"""
+        self.maxDiff = None
+        for dic in self.knownValuesClean + self.knownValuesCleanWithUnicode:
+            result = parse(build(dic, encoding='utf-8'), unquote=True, encoding='utf-8')
+            self.assertEqual(dic, result)
+
+    def test_parse_known_values_with_unicode(self):
+        """parse should give known result with known input (quoted)"""
+        self.maxDiff = None
+        for dic in self.knownValues + self.knownValuesWithUnicode:
+            result = parse(build(dic, encoding='utf-8'), encoding='utf-8')
             self.assertEqual(dic, result)
 
 

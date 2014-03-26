@@ -95,11 +95,14 @@ def parser_helper(key, val):
     return pdict
 
 
-def parse(query_string, unquote=True):
+def parse(query_string, unquote=True, encoding='utf-8'):
     '''
     Main parse function
     @param query_string:
     @param unquote: unquote html query string ?
+    @param encoding: An optional encoding used to decode the keys and values. Defaults to utf-8, which the W3C declares as a defaul in the W3C algorithm for encoding.
+    @see http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
+
     '''
     mydict = {}
     plist = []
@@ -115,6 +118,9 @@ def parse(query_string, unquote=True):
                 (var, val) = element.split("=")
         except ValueError:
             raise MalformedQueryStringError
+        if encoding:
+            var = var.decode(encoding)
+            val = val.decode(encoding)
         plist.append(parser_helper(var, val))
     for di in plist:
         (k, v) = di.popitem()
