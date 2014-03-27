@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='querystring_parser',
-      version='1.1.1',
+      version='1.2.0',
       description='QueryString parser for Python/Django that correctly handles nested dictionaries',
       author='bernii',
       author_email='berni@extensa.pl',
