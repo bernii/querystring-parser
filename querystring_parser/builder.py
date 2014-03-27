@@ -10,16 +10,20 @@ Updated 2012-04-01 Bernard 'berni' Kobos
 import urllib
 import types
 
-def build(item):
+def build(item, encoding=None):
 	def recursion(item, base=None):
 		pairs = list()
 		if(hasattr(item, 'values')):
 			for key, value in item.items():
+				if encoding:
+					quoted_key = urllib.quote(unicode(key).encode(encoding))
+				else:
+					quoted_key = urllib.quote(unicode(key))
 				if(base):
-					new_base = "%s[%s]" % (base, urllib.quote(unicode(key)))
+					new_base = "%s[%s]" % (base, quoted_key)
 					pairs += recursion(value, new_base)
 				else:
-					new_base = urllib.quote(unicode(key))
+					new_base = quoted_key
 					pairs += recursion(value, new_base)
 		elif(isinstance(item, types.ListType)):
 			for (index, value) in enumerate(item):
@@ -29,9 +33,13 @@ def build(item):
 				else:
 					pairs += recursion(value)
 		else:
-			if(base):
-				pairs.append("%s=%s" % (base, urllib.quote(unicode(item))))
+			if encoding:
+				quoted_item = urllib.quote(unicode(item).encode(encoding))
 			else:
-				pairs.append(urllib.quote(unicode(item)))
+				quoted_item = urllib.quote(unicode(item))
+			if(base):
+				pairs.append("%s=%s" % (base, quoted_item))
+			else:
+				pairs.append(quoted_item)
 		return pairs
 	return '&'.join(recursion(item))
