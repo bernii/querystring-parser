@@ -112,8 +112,8 @@ def parse(query_string, unquote=True, encoding='utf-8'):
         try:
             if unquote:
                 (var, val) = element.split("=")
-                var = urllib.unquote_plus(var)
-                val = urllib.unquote_plus(val)
+                var = urllib.unquote_plus(var.encode('ascii'))
+                val = urllib.unquote_plus(val.encode('ascii'))
             else:
                 (var, val) = element.split("=")
         except ValueError:
