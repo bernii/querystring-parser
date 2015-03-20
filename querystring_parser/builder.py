@@ -7,8 +7,20 @@ Created on 2012-03-28
 Updated 2012-04-01 Bernard 'berni' Kobos
 '''
 
-import urllib
-import types
+
+try:
+    # for Python3
+    import urllib.parse as urllib
+except ImportError:
+    # for Python2
+    import urllib
+
+try:
+    unicode
+except NameError:
+    # for Python3
+    unicode = str
+
 
 def build(item, encoding=None):
 	def recursion(item, base=None):
@@ -25,7 +37,7 @@ def build(item, encoding=None):
 				else:
 					new_base = quoted_key
 					pairs += recursion(value, new_base)
-		elif(isinstance(item, types.ListType)):
+		elif(isinstance(item, list)):
 			for (index, value) in enumerate(item):
 				if(base):
 					new_base = "%s" % (base)
