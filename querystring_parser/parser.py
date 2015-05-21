@@ -90,7 +90,8 @@ def parser_helper(key, val):
             if newkey is None:
                 raise MalformedQueryStringError
         newkey = int(newkey) if is_number(newkey) else newkey
-        val = int(val) if is_number(val) else val
+        if key == u'[]':  # val is the array key
+            val = int(val) if is_number(val) else val
         pdict[newkey] = val
     return pdict
 
