@@ -5,7 +5,21 @@ Created on 2011-05-12
 @author: berni
 '''
 
-import urllib
+try:
+    # for Python3
+    import urllib.parse as urllib
+except ImportError:
+    # for Python2
+    import urllib
+
+try:
+    unicode
+    DEFAULT_ENCODING = 'utf-8'
+except NameError:
+    # for Python3
+    uncode = str
+    DEFAULT_ENCODING = None
+
 
 
 def has_variable_name(s):
@@ -95,8 +109,7 @@ def parser_helper(key, val):
         pdict[newkey] = val
     return pdict
 
-
-def parse(query_string, unquote=True, encoding='utf-8'):
+def parse(query_string, unquote=True, encoding=DEFAULT_ENCODING):
     '''
     Main parse function
     @param query_string:
@@ -159,6 +172,6 @@ if __name__ == '__main__':
         t = Timer(statement, "from __main__ import parse")
         td = Timer(statementd, "from django import http")
         tqs = Timer(statementqs, "from urlparse import parse_qs")
-        print "Test string nr ".ljust(15), "querystring-parser".ljust(22), "Django QueryDict".ljust(22), "parse_qs"
-        print str(i).ljust(15), str(min(t.repeat(3, 10000))).ljust(22), str(min(td.repeat(3, 10000))).ljust(22), min(tqs.repeat(3, 10000))
+        print ("Test string nr ".ljust(15), "querystring-parser".ljust(22), "Django QueryDict".ljust(22), "parse_qs")
+        print (str(i).ljust(15), str(min(t.repeat(3, 10000))).ljust(22), str(min(td.repeat(3, 10000))).ljust(22), min(tqs.repeat(3, 10000)))
         i += 1

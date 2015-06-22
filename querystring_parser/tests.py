@@ -8,6 +8,7 @@ Updated 2012-03-28 Tomasz 'Doppler' Najdek
 Updated 2012-09-24 Bernard 'berni' Kobos
 '''
 
+import sys
 from parser import parse, MalformedQueryStringError
 from builder import build
 import unittest
@@ -102,15 +103,18 @@ class KnownValues(unittest.TestCase):
     def test_parse_known_values_clean_with_unicode(self):
         """parse should give known result with known input"""
         self.maxDiff = None
+        encoding = 'utf-8' if sys.version_info[0] == 2 else None
         for dic in self.knownValuesClean + self.knownValuesCleanWithUnicode:
-            result = parse(build(dic, encoding='utf-8'), unquote=True, encoding='utf-8')
+            result = parse(build(dic, encoding=encoding), unquote=True, encoding=encoding)
             self.assertEqual(dic, result)
 
     def test_parse_known_values_with_unicode(self):
         """parse should give known result with known input (quoted)"""
         self.maxDiff = None
+        
+        encoding = 'utf-8' if sys.version_info[0] == 2 else None
         for dic in self.knownValues + self.knownValuesWithUnicode:
-            result = parse(build(dic, encoding='utf-8'), encoding='utf-8')
+            result = parse(build(dic, encoding=encoding), encoding=encoding)
             self.assertEqual(dic, result)
 
     def test_parse_unicode_input_string(self):
@@ -149,11 +153,9 @@ class BuildUrl(unittest.TestCase):
       u"words_nested": {u"hard": [u"trudny", u"twardy"]}
     }
 
-    known_result = 'words_with_translation[hard]=trudny&words_with_translation[tough]=twardy&words_nested[hard]=trudny&words_nested[hard]=twardy&word=easy&more_words=medium&more_words=average'
-
     def test_build(self):
         result = build(self.request_data)
-        self.assertEquals(result, self.known_result)
+        self.assertEquals(parse(result), self.request_data)
 
     def test_end_to_end(self):
         self.maxDiff = None
