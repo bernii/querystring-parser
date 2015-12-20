@@ -9,10 +9,12 @@ Updated 2012-09-24 Bernard 'berni' Kobos
 '''
 
 import sys
-from parser import parse, MalformedQueryStringError
-from builder import build
 import unittest
 
+import six
+
+from .parser import parse, MalformedQueryStringError
+from .builder import build
 
 class KnownValues(unittest.TestCase):
     '''
@@ -111,7 +113,7 @@ class KnownValues(unittest.TestCase):
     def test_parse_known_values_with_unicode(self):
         """parse should give known result with known input (quoted)"""
         self.maxDiff = None
-        
+
         encoding = 'utf-8' if sys.version_info[0] == 2 else None
         for dic in self.knownValues + self.knownValuesWithUnicode:
             result = parse(build(dic, encoding=encoding), encoding=encoding)
@@ -121,8 +123,10 @@ class KnownValues(unittest.TestCase):
         """https://github.com/bernii/querystring-parser/issues/15"""
         qs = u'first_name=%D8%B9%D9%84%DB%8C'
         expected = {u'first_name': u'\u0639\u0644\u06cc'}
-        self.assertEqual(parse(qs.encode('ascii')), expected)
+        if six.PY2:
+            self.assertEqual(parse(qs.encode('ascii')), expected)
         self.assertEqual(parse(qs), expected)
+
 
 class ParseBadInput(unittest.TestCase):
     '''
