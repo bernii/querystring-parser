@@ -5,6 +5,8 @@ Created on 2011-05-12
 @author: berni
 '''
 
+import six
+
 try:
     # for Python3
     import urllib.parse as urllib
@@ -127,13 +129,17 @@ def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODIN
         try:
             if unquote:
                 (var, val) = element.split("=")
-                var = urllib.unquote_plus(var.encode('ascii'))
-                val = urllib.unquote_plus(val.encode('ascii'))
+                if six.PY2:
+                    var = urllib.unquote_plus(var.encode('ascii'))
+                    val = urllib.unquote_plus(val.encode('ascii'))
+                else:
+                    var = urllib.unquote_plus(var)
+                    val = urllib.unquote_plus(val)
             else:
                 (var, val) = element.split("=")
         except ValueError:
             raise MalformedQueryStringError
-        if encoding:
+        if encoding or six.PY2:
             var = var.decode(encoding)
             val = val.decode(encoding)
         plist.append(parser_helper(var, val))
@@ -163,23 +169,25 @@ def _normalize(d):
 
     Note: if dict has element starts with 10, 11 etc.. this function won't fill
     blanks.
-    for eg: {'abc': {10: 'xyz', 12: 'pqr'}} will convert to 
+    for eg: {'abc': {10: 'xyz', 12: 'pqr'}} will convert to
     {'abc': ['xyz', 'pqr']}
     '''
     newd = {}
     if isinstance(d, dict) == False:
         return d
     # if dictionary. iterate over each element and append to newd
-    for k, v in d.iteritems():
-        if type(v) is dict and type(v.keys()[0]) is int:
-            temp_new = []
-            for k1, v1 in v.items():
-                temp_new.append(_normalize(v1))
-            newd[k] = temp_new
-        elif type(v) is dict and v.keys()[0] == '':
-            newd[k] = v.values()[0]
-        elif type(v) is dict:
-            newd[k] = _normalize(v)
+    for k, v in six.iteritems(d):
+        if isinstance(v, dict):
+            first_key = next(iter(six.viewkeys(v)))
+            if isinstance(first_key, int):
+                temp_new = []
+                for k1, v1 in six.iteritems(v):
+                    temp_new.append(_normalize(v1))
+                newd[k] = temp_new
+            elif first_key == '':
+                newd[k] = v.values()[0]
+            else:
+                newd[k] = _normalize(v)
         else:
             newd[k] = v
     return newd
