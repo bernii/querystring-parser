@@ -5,6 +5,8 @@ Created on 2011-05-12
 @author: berni
 '''
 
+import sys
+
 try:
     # for Python3
     import urllib.parse as urllib
@@ -17,7 +19,7 @@ try:
     DEFAULT_ENCODING = 'utf-8'
 except NameError:
     # for Python3
-    uncode = str
+    unicode = str
     DEFAULT_ENCODING = None
 
 
@@ -119,16 +121,24 @@ def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODIN
 
     @param normalized: parse number key in dict to proper list ?
     '''
+    
     mydict = {}
     plist = []
     if query_string == "":
         return mydict
+    
+    if type(query_string) == bytes:
+      query_string = query_string.decode()
+    
     for element in query_string.split("&"):
         try:
             if unquote:
                 (var, val) = element.split("=")
-                var = urllib.unquote_plus(var.encode('ascii'))
-                val = urllib.unquote_plus(val.encode('ascii'))
+                if sys.version_info[0] == 2:
+                  var = var.encode('ascii')
+                  val = val.encode('ascii')
+                var = urllib.unquote_plus(var)
+                val = urllib.unquote_plus(val)
             else:
                 (var, val) = element.split("=")
         except ValueError:
