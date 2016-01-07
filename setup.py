@@ -9,4 +9,7 @@ setup(name='querystring_parser',
       author_email='berni@extensa.pl',
       url='https://github.com/bernii/querystring-parser',
       packages=['querystring_parser'],
+      install_requires=[
+        "requests",
+	  ],
 )
