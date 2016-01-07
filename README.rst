@@ -2,7 +2,8 @@
 querystring-parser
 ===================
 
-[![Build Status](https://travis-ci.org/bernii/querystring-parser.svg?branch=master)](https://travis-ci.org/bernii/querystring-parser)
+.. image:: https://travis-ci.org/bernii/querystring-parser.svg?branch=master
+    :target: https://travis-ci.org/bernii/querystring-parser
 
 This repository hosts the query string parser for Python/Django projects that correcly creates nested dictionaries from sent form/querystring data.
 
