@@ -196,7 +196,7 @@ def values_parser(payload):
 
     if isinstance(payload, dict):
         new_payload = {}
-        for k, v in payload.iteritems():
+        for k, v in six.iteritems(payload):
             new_payload[k] = values_parser(v)
 
         return new_payload
