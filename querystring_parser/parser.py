@@ -112,7 +112,7 @@ def parser_helper(key, val):
         pdict[newkey] = val
     return pdict
 
-def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODING):
+def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODING, parse_values=True):
     '''
     Main parse function
     @param query_string:
@@ -162,8 +162,46 @@ def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODIN
             tempdict[k] = v
 
     if normalized == True:
-        return _normalize(mydict)
+        mydict = _normalize(mydict)
+
+    if parse_values:
+        mydict = values_parser(mydict)
+
     return mydict
+
+
+def values_parser(payload):
+    """ Parse JSON values to Python values
+    """
+    VALUES = {
+        u'null': None,
+        u'true': True,
+        u'false': False
+    }
+
+    if isinstance(payload, unicode):
+        new_payload = payload
+
+        if payload in VALUES.keys():
+            new_payload = VALUES[payload]
+
+        return new_payload
+
+    if isinstance(payload, list):
+        new_payload = []
+        for v in payload:
+            new_payload.append(values_parser(v))
+
+        return new_payload
+
+    if isinstance(payload, dict):
+        new_payload = {}
+        for k, v in payload.iteritems():
+            new_payload[k] = values_parser(v)
+
+        return new_payload
+
+    return payload
 
 
 def _normalize(d):
