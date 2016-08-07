@@ -11,5 +11,6 @@ setup(name='querystring_parser',
       packages=['querystring_parser'],
       install_requires=[
         "requests",
+        "six",
 	  ],
 )
