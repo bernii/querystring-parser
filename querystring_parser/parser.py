@@ -154,10 +154,10 @@ def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODIN
         while k in tempdict and type(v) is dict:
             tempdict = tempdict[k]
             (k, v) = v.popitem()
-        if k in tempdict and type(tempdict[k]).__name__ == 'list':
-            tempdict[k].append(v)
-        elif k in tempdict:
-            tempdict[k] = [tempdict[k], v]
+        if type(tempdict) == list and k == '':
+            tempdict.append(v)
+        elif type(v) is dict and v.has_key(''):
+            tempdict[k] = [v['']]
         else:
             tempdict[k] = v
 
