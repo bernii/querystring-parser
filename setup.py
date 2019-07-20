@@ -10,7 +10,7 @@ setup(
     author_email="berni@extensa.pl",
     url="https://github.com/bernii/querystring-parser",
     packages=["querystring_parser"],
-    install_requires=["requests", "six"],
+    install_requires=["six"],
     classifiers=[
         "Development Status :: 6 - Mature",
         "License :: OSI Approved :: MIT License",
