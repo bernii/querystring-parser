@@ -58,10 +58,6 @@ Install using pip.
 How to use:
 ============
 
-Install using pip.
-::
-  pip install querystring-parser
-
 Just add it to your Django project and start using it.  
 ::
   from querystring_parser import parser
