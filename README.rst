@@ -48,8 +48,19 @@ Edit: Actually parsing is done by urlparse.parse_qs so I've added it to tests.
 
 Test #1 Is most interesting as is contains nested dictionaries in query string.
 
+Installation:
+============
+
+Install using pip.
+::
+  pip install querystring-parser
+  
 How to use:
 ============
+
+Install using pip.
+::
+  pip install querystring-parser
 
 Just add it to your Django project and start using it.  
 ::
