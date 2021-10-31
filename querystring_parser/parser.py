@@ -117,7 +117,7 @@ def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODIN
     Main parse function
     @param query_string:
     @param unquote: unquote html query string ?
-    @param encoding: An optional encoding used to decode the keys and values. Defaults to utf-8, which the W3C declares as a defaul in the W3C algorithm for encoding.
+    @param encoding: An optional encoding used to decode the keys and values. Defaults to utf-8, which the W3C declares as a default in the W3C algorithm for encoding.
     @see http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-encoding-algorithm
 
     @param normalized: parse number key in dict to proper list ?
