@@ -6,20 +6,7 @@ Created on 2012-03-28
 
 Updated 2012-04-01 Bernard 'berni' Kobos
 '''
-
-
-try:
-    # for Python3
-    import urllib.parse as urllib
-except ImportError:
-    # for Python2
-    import urllib
-
-try:
-    unicode
-except NameError:
-    # for Python3
-    unicode = str
+import urllib.parse as urllib
 
 
 def build(item, encoding=None):
@@ -28,9 +15,9 @@ def build(item, encoding=None):
 		if(hasattr(item, 'values')):
 			for key, value in item.items():
 				if encoding:
-					quoted_key = urllib.quote(unicode(key).encode(encoding))
+					quoted_key = urllib.quote(str(key).encode(encoding))
 				else:
-					quoted_key = urllib.quote(unicode(key))
+					quoted_key = urllib.quote(str(key))
 				if(base):
 					new_base = "%s[%s]" % (base, quoted_key)
 					pairs += recursion(value, new_base)
@@ -46,9 +33,9 @@ def build(item, encoding=None):
 					pairs += recursion(value)
 		else:
 			if encoding:
-				quoted_item = urllib.quote(unicode(item).encode(encoding))
+				quoted_item = urllib.quote(str(item).encode(encoding))
 			else:
-				quoted_item = urllib.quote(unicode(item))
+				quoted_item = urllib.quote(str(item))
 			if(base):
 				pairs.append("%s=%s" % (base, quoted_item))
 			else:
