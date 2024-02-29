@@ -8,6 +8,7 @@ Updated 2012-03-28 Tomasz 'Doppler' Najdek
 Updated 2012-09-24 Bernard 'berni' Kobos
 '''
 
+from collections import OrderedDict
 import sys
 from parser import parse, MalformedQueryStringError
 from builder import build
@@ -200,12 +201,14 @@ class NormalizedParse(unittest.TestCase):
                                   'words': [['', ''], ['', ''],
                                             ['renca', 'rukka']]},
                                  {'name': 'sekcja siatkarska2',
-                                  'words': [['wlos', 'a hair'], ['', ''],
-                                            ['', '']]}]}
+                                  'words': [['', ''],
+                                            ['', ''],
+                                            ['wlos', 'a hair']]
+                                            }]}
 
     def test_parse_normalized(self):
         result = parse(build(self.knownValues), normalized=True)
-        self.assertEqual(self.knownValuesNormalized, result)
+        self.assertDictEqual(self.knownValuesNormalized, result)
 
 if __name__ == "__main__":
     unittest.main()

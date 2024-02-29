@@ -6,23 +6,7 @@ Created on 2011-05-12
 '''
 
 import sys
-import six
-
-try:
-    # for Python3
-    import urllib.parse as urllib
-except ImportError:
-    # for Python2
-    import urllib
-
-try:
-    unicode
-    DEFAULT_ENCODING = 'utf-8'
-except NameError:
-    # for Python3
-    unicode = str
-    DEFAULT_ENCODING = None
-
+import urllib.parse as urllib
 
 
 def has_variable_name(s):
@@ -112,7 +96,7 @@ def parser_helper(key, val):
         pdict[newkey] = val
     return pdict
 
-def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODING):
+def parse(query_string, unquote=True, normalized=False, encoding=None):
     '''
     Main parse function
     @param query_string:
@@ -135,9 +119,6 @@ def parse(query_string, unquote=True, normalized=False, encoding=DEFAULT_ENCODIN
         try:
             if unquote:
                 (var, val) = element.split("=")
-                if sys.version_info[0] == 2:
-                  var = var.encode('ascii')
-                  val = val.encode('ascii')
                 var = urllib.unquote_plus(var)
                 val = urllib.unquote_plus(val)
             else:
@@ -181,16 +162,16 @@ def _normalize(d):
     if isinstance(d, dict) == False:
         return d
     # if dictionary. iterate over each element and append to newd
-    for k, v in six.iteritems(d):
+    for k, v in d.items():
         if isinstance(v, dict):
-            first_key = next(iter(six.viewkeys(v)))
+            first_key = next(iter(v.keys()))
             if isinstance(first_key, int):
                 temp_new = []
-                for k1, v1 in v.items():
+                for _, v1 in v.items():
                     temp_new.append(_normalize(v1))
                 newd[k] = temp_new
             elif first_key == '':
-                newd[k] = v.values()[0]
+                newd[k] = next(iter(v.values()))[0]
             else:
                 newd[k] = _normalize(v)
         else:
@@ -205,7 +186,7 @@ if __name__ == '__main__':
     import os
     import sys
     from django.core.management import setup_environ
-    # Add project dir so Djnago project settings is in the scope
+    # Add project dir so Django project settings is in the scope
     LIB_PATH = os.path.abspath('..')
     sys.path.append(LIB_PATH)
     import settings
@@ -218,7 +199,7 @@ if __name__ == '__main__':
         statementqs = "parse_qs(\"%s\")" % key
         t = Timer(statement, "from __main__ import parse")
         td = Timer(statementd, "from django import http")
-        tqs = Timer(statementqs, "from urlparse import parse_qs")
+        tqs = Timer(statementqs, "from urllib.parse import parse_qs")
         print ("Test string nr ".ljust(15), "querystring-parser".ljust(22), "Django QueryDict".ljust(22), "parse_qs")
         print (str(i).ljust(15), str(min(t.repeat(3, 10000))).ljust(22), str(min(td.repeat(3, 10000))).ljust(22), min(tqs.repeat(3, 10000)))
         i += 1
